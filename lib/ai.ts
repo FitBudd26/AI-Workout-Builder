@@ -68,7 +68,7 @@ async function callGemini(req: AiCompletionRequest): Promise<AiCompletionRespons
     contents: [{ role: "user", parts: [{ text: req.userPrompt }] }],
     generationConfig: {
       temperature: req.temperature ?? 0.55,
-      maxOutputTokens: req.maxTokens ?? 2200,
+      maxOutputTokens: req.maxTokens ?? 3000,
       responseMimeType: "application/json",
     },
     safetySettings: [
@@ -118,6 +118,11 @@ async function callGeminiModel(
       if (!candidate) throw new Error("Gemini returned no candidates.");
       if (candidate.finishReason === "SAFETY") {
         throw new Error("Gemini blocked the response for safety reasons. Try rephrasing.");
+      }
+      if (candidate.finishReason === "MAX_TOKENS") {
+        throw new Error(
+          "Plan was too long to fit in the response. Try a shorter session duration or simpler request."
+        );
       }
       const text = (candidate.content?.parts ?? [])
         .map((p) => p.text ?? "")
