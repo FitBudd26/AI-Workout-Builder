@@ -45,7 +45,7 @@ export function Generator() {
   return (
     <section
       id="generator"
-      className="w-full max-w-md mx-auto flex flex-col gap-4"
+      className="w-full max-w-md mx-auto flex flex-col gap-2"
     >
       <header className="relative flex items-center justify-center">
         <h1 className="text-base sm:text-lg font-semibold text-ink text-center">
