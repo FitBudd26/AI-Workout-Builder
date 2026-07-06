@@ -5,6 +5,7 @@ import { Modal } from "./Modal";
 import { Button } from "./ui/Button";
 import { Field } from "./ui/Field";
 import { Input } from "./ui/Input";
+import { Select } from "./ui/Select";
 
 interface Props {
   open: boolean;
@@ -13,11 +14,19 @@ interface Props {
   onProceed: () => void;
 }
 
+// Matches the HubSpot dropdown "are_you_a_fitness_professional" options.
+const PROFESSIONS = [
+  "Fitness Coach",
+  "Personal Trainer",
+  "Just for Myself",
+  "Influencer/Creator",
+];
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function DownloadGateModal({ open, onClose, onProceed }: Props) {
-  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
+  const [profession, setProfession] = useState("");
   const [consent, setConsent] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -27,6 +36,10 @@ export function DownloadGateModal({ open, onClose, onProceed }: Props) {
     e.preventDefault();
     if (!EMAIL_RE.test(email)) {
       setError("Enter a valid email address.");
+      return;
+    }
+    if (!profession) {
+      setError("Select an option.");
       return;
     }
     if (!consent) {
@@ -42,7 +55,7 @@ export function DownloadGateModal({ open, onClose, onProceed }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          firstName,
+          profession,
           consent,
           pageUri: typeof window !== "undefined" ? window.location.href : undefined,
         }),
@@ -78,15 +91,6 @@ export function DownloadGateModal({ open, onClose, onProceed }: Props) {
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-4">
-        <Field label="First name" htmlFor="gate-firstname">
-          <Input
-            id="gate-firstname"
-            placeholder="Your first name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-        </Field>
-
         <Field label="Email" required htmlFor="gate-email">
           <Input
             id="gate-email"
@@ -96,6 +100,16 @@ export function DownloadGateModal({ open, onClose, onProceed }: Props) {
             onChange={(e) => setEmail(e.target.value)}
             invalid={!!error && !EMAIL_RE.test(email)}
             autoFocus
+          />
+        </Field>
+
+        <Field label="Are you a fitness professional?" required>
+          <Select
+            placeholder="Select an option"
+            value={profession}
+            invalid={!!error && !profession}
+            onChange={(e) => setProfession(e.target.value)}
+            options={PROFESSIONS.map((p) => ({ value: p, label: p }))}
           />
         </Field>
 

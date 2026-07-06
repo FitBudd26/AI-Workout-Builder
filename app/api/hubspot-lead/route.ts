@@ -12,7 +12,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface LeadBody {
   email: string;
-  firstName?: string;
+  profession?: string;
   consent?: boolean;
   pageUri?: string;
 }
@@ -32,8 +32,12 @@ export async function POST(req: Request) {
   const fields: { name: string; value: string }[] = [
     { name: "email", value: body.email },
   ];
-  if (body.firstName?.trim()) {
-    fields.push({ name: "firstname", value: body.firstName.trim() });
+  if (body.profession?.trim()) {
+    // Internal name of the HubSpot dropdown on this form.
+    fields.push({
+      name: "are_you_a_fitness_professional",
+      value: body.profession.trim(),
+    });
   }
 
   const payload = {
