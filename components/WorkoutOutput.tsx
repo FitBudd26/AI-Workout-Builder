@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "./ui/Button";
 import { DownloadGateModal } from "./DownloadGateModal";
 import { SignupPopup } from "./SignupPopup";
-import { downloadWorkoutPdf, pdfFileName, workoutPdfBase64 } from "@/lib/pdf";
+import { downloadWorkoutPdf } from "@/lib/pdf";
 import type { WorkoutPlan } from "@/lib/types";
 
 interface Props {
@@ -17,44 +17,12 @@ interface Props {
 export function WorkoutOutput({ plan, onReset }: Props) {
   const [gateOpen, setGateOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
 
-  // Email-gate flow: capture email → email the PDF → show signup popup.
-  async function handleEmailSend(email: string, profession: string) {
-    setSending(true);
-    setServerError(null);
-    try {
-      const pdfBase64 = workoutPdfBase64(plan);
-      const res = await fetch("/api/send-plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          profession,
-          clientName: plan.clientName,
-          goal: plan.goal,
-          pdfBase64,
-          fileName: pdfFileName(plan),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Couldn't send the email.");
-      // Also give them an immediate local copy, then upsell.
-      downloadWorkoutPdf(plan);
-      setGateOpen(false);
-      setSignupOpen(true);
-    } catch (e) {
-      setServerError(e instanceof Error ? e.message : "Couldn't send the email.");
-    } finally {
-      setSending(false);
-    }
-  }
-
-  function handleDownloadAnyway() {
+  // HubSpot form captures the lead; on submit we hand over the PDF locally
+  // and upsell. (HubSpot workflows handle any follow-up email on their side.)
+  function handleGateSubmitted() {
     downloadWorkoutPdf(plan);
     setGateOpen(false);
-    setServerError(null);
     setSignupOpen(true);
   }
 
@@ -130,10 +98,7 @@ export function WorkoutOutput({ plan, onReset }: Props) {
             variant="primary"
             size="lg"
             className="w-full"
-            onClick={() => {
-              setServerError(null);
-              setGateOpen(true);
-            }}
+            onClick={() => setGateOpen(true)}
           >
             <DownloadIcon /> Download full plan (PDF)
           </Button>
@@ -149,10 +114,7 @@ export function WorkoutOutput({ plan, onReset }: Props) {
       <DownloadGateModal
         open={gateOpen}
         onClose={() => setGateOpen(false)}
-        onSubmit={handleEmailSend}
-        sending={sending}
-        serverError={serverError}
-        onDownloadAnyway={handleDownloadAnyway}
+        onSubmitted={handleGateSubmitted}
       />
       <SignupPopup open={signupOpen} onClose={() => setSignupOpen(false)} />
     </>
