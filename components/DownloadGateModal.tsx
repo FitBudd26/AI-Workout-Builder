@@ -1,98 +1,63 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Modal } from "./Modal";
+import { Button } from "./ui/Button";
+import { Field } from "./ui/Field";
+import { Input } from "./ui/Input";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  // Fired once the HubSpot form is successfully submitted (lead captured).
-  onSubmitted: () => void;
+  // Called once we should hand over the plan (after capture, or "download anyway").
+  onProceed: () => void;
 }
 
-// HubSpot form config (FitBudd portal).
-const HS_SRC = "https://js.hsforms.net/forms/embed/v2.js";
-const PORTAL_ID = "9058640";
-const FORM_ID = "c50c2e53-ff2e-4d8c-82cd-fd0be0521aa8";
-const REGION = "na1";
-const TARGET_ID = "hs-workout-form";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-declare global {
-  interface Window {
-    hbspt?: {
-      forms: { create: (opts: Record<string, unknown>) => void };
-    };
-  }
-}
+export function DownloadGateModal({ open, onClose, onProceed }: Props) {
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
-// Load the HubSpot forms embed script once, resolve when hbspt is ready.
-function loadHubSpot(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (typeof window === "undefined") return reject(new Error("no window"));
-    if (window.hbspt) return resolve();
-
-    const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${HS_SRC}"]`
-    );
-    if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () =>
-        reject(new Error("HubSpot script failed to load"))
-      );
-      if (window.hbspt) resolve();
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!EMAIL_RE.test(email)) {
+      setError("Enter a valid email address.");
       return;
     }
-
-    const s = document.createElement("script");
-    s.src = HS_SRC;
-    s.async = true;
-    s.charset = "utf-8";
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error("HubSpot script failed to load"));
-    document.body.appendChild(s);
-  });
-}
-
-export function DownloadGateModal({ open, onClose, onSubmitted }: Props) {
-  const createdRef = useRef(false);
-  const [failed, setFailed] = useState(false);
-
-  // Keep the latest onSubmitted without re-creating the form.
-  const submittedRef = useRef(onSubmitted);
-  useEffect(() => {
-    submittedRef.current = onSubmitted;
-  });
-
-  useEffect(() => {
-    if (!open) {
-      createdRef.current = false;
-      setFailed(false);
+    if (!consent) {
+      setError("Please tick the box to continue.");
       return;
     }
-
-    let cancelled = false;
-    loadHubSpot()
-      .then(() => {
-        const target = document.getElementById(TARGET_ID);
-        if (cancelled || createdRef.current || !window.hbspt || !target) return;
-        target.innerHTML = "";
-        createdRef.current = true;
-        window.hbspt.forms.create({
-          portalId: PORTAL_ID,
-          formId: FORM_ID,
-          region: REGION,
-          target: `#${TARGET_ID}`,
-          onFormSubmitted: () => submittedRef.current(),
-        });
-      })
-      .catch(() => {
-        if (!cancelled) setFailed(true);
+    setError(null);
+    setServerError(null);
+    setSending(true);
+    try {
+      const res = await fetch("/api/hubspot-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          firstName,
+          consent,
+          pageUri: typeof window !== "undefined" ? window.location.href : undefined,
+        }),
       });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Couldn't save your details.");
+      onProceed();
+    } catch (err) {
+      setServerError(
+        err instanceof Error ? err.message : "Couldn't save your details."
+      );
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <Modal open={open} onClose={onClose} labelledBy="download-gate-title">
@@ -112,14 +77,61 @@ export function DownloadGateModal({ open, onClose, onSubmitted }: Props) {
         Enter your email and your full plan downloads as a PDF.
       </p>
 
-      <div id={TARGET_ID} className="mt-4 min-h-[120px]" />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-4">
+        <Field label="First name" htmlFor="gate-firstname">
+          <Input
+            id="gate-firstname"
+            placeholder="Your first name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+        </Field>
 
-      {failed && (
-        <div className="mt-3 rounded-lg border border-brand-orange/30 bg-brand-tint text-[11px] text-ink px-3 py-2">
-          Couldn&apos;t load the form. Please check your connection and try
-          again.
+        <Field label="Email" required htmlFor="gate-email">
+          <Input
+            id="gate-email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            invalid={!!error && !EMAIL_RE.test(email)}
+            autoFocus
+          />
+        </Field>
+
+        <label className="flex items-start gap-2 text-[11px] text-ink-muted leading-relaxed">
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-brand-teal"
+          />
+          <span>I agree to receive communications from FitBudd and allow FitBudd to store my details. You can unsubscribe anytime.</span>
+        </label>
+
+        {error && <p className="text-[11px] text-brand-orange">{error}</p>}
+        {serverError && (
+          <div className="rounded-lg border border-brand-orange/30 bg-brand-tint text-[11px] text-ink px-3 py-2">
+            {serverError}
+            <button
+              type="button"
+              onClick={onProceed}
+              className="block mt-1 underline underline-offset-2 font-medium"
+            >
+              Download the PDF anyway
+            </button>
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-1">
+          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button type="submit" loading={sending} className="flex-1">
+            Download plan
+          </Button>
         </div>
-      )}
+      </form>
     </Modal>
   );
 }

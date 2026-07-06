@@ -22,34 +22,3 @@ body {
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
-
-/* --- HubSpot embedded form: match the tool's brand tokens --- */
-#hs-workout-form .hs-form-field { margin-bottom: 10px; }
-#hs-workout-form label {
-  font-size: 12px; font-weight: 600; color: #0B0B0F;
-  display: block; margin-bottom: 4px;
-}
-#hs-workout-form .hs-form-field .hs-field-desc { font-size: 11px; color: #9CA3AF; }
-#hs-workout-form input.hs-input,
-#hs-workout-form select.hs-input,
-#hs-workout-form textarea.hs-input {
-  width: 100%; height: 40px; box-sizing: border-box;
-  border: 1px solid #E5E7EB; border-radius: 8px; padding: 0 12px;
-  font-size: 14px; color: #0B0B0F; background: #fff;
-}
-#hs-workout-form textarea.hs-input { height: 60px; padding: 8px 12px; }
-#hs-workout-form input.hs-input:focus,
-#hs-workout-form select.hs-input:focus,
-#hs-workout-form textarea.hs-input:focus {
-  outline: none; border-color: #009379; box-shadow: 0 0 0 1px rgba(0,147,121,0.3);
-}
-#hs-workout-form .hs-error-msg,
-#hs-workout-form .hs-error-msgs label { color: #FE895C; font-size: 11px; font-weight: 500; }
-#hs-workout-form .hs-button {
-  width: 100%; height: 46px; border: 0; border-radius: 8px; cursor: pointer;
-  background: #FE895C; color: #fff; font-weight: 600; font-size: 14px;
-  transition: background 150ms ease; margin-top: 4px;
-}
-#hs-workout-form .hs-button:hover { background: #f5703d; }
-#hs-workout-form .legal-consent-container,
-#hs-workout-form .hs-richtext { font-size: 11px; color: #9CA3AF; }

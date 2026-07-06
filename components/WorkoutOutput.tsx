@@ -18,9 +18,9 @@ export function WorkoutOutput({ plan, onReset }: Props) {
   const [gateOpen, setGateOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
 
-  // HubSpot form captures the lead; on submit we hand over the PDF locally
+  // Lead is captured to HubSpot in the gate; then we hand over the PDF locally
   // and upsell. (HubSpot workflows handle any follow-up email on their side.)
-  function handleGateSubmitted() {
+  function handleProceed() {
     downloadWorkoutPdf(plan);
     setGateOpen(false);
     setSignupOpen(true);
@@ -114,7 +114,7 @@ export function WorkoutOutput({ plan, onReset }: Props) {
       <DownloadGateModal
         open={gateOpen}
         onClose={() => setGateOpen(false)}
-        onSubmitted={handleGateSubmitted}
+        onProceed={handleProceed}
       />
       <SignupPopup open={signupOpen} onClose={() => setSignupOpen(false)} />
     </>
