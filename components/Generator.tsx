@@ -47,21 +47,21 @@ export function Generator() {
       id="generator"
       className="w-full max-w-[536px] mx-auto p-4 flex flex-col gap-2.5"
     >
-      <header className="relative flex items-center justify-center">
-        <h1 className="text-sm font-bold text-brand-orange text-center whitespace-nowrap">
-          AI Workout Generator
-        </h1>
-        {plan && (
-          <button
-            onClick={() => setPlan(null)}
-            className="absolute right-0 text-xs text-ink-muted hover:text-ink underline-offset-4 hover:underline"
-          >
-            New plan
-          </button>
-        )}
-      </header>
-
       <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm min-h-[440px]">
+        <header className="relative flex items-center justify-center mb-3">
+          <h1 className="text-sm font-bold text-brand-orange text-center whitespace-nowrap">
+            AI Workout Generator
+          </h1>
+          {plan && (
+            <button
+              onClick={() => setPlan(null)}
+              className="absolute right-0 text-xs text-ink-muted hover:text-ink underline-offset-4 hover:underline"
+            >
+              New plan
+            </button>
+          )}
+        </header>
+
         <Tabs value={mode} onChange={setMode} />
         <div className="mt-4">
           {mode === "guided" ? (
