@@ -69,7 +69,9 @@ export async function POST(req: Request) {
     const { text, provider } = await generateCompletion({
       systemPrompt: WORKOUT_SYSTEM_PROMPT,
       userPrompt,
-      maxTokens: 3200,
+      // Gemini 2.0 Flash caps output at 8192 tokens. A full plan rarely needs
+      // this much, but chat-mode plans were truncating at 3200 → MAX_TOKENS.
+      maxTokens: 8000,
       temperature: 0.55,
     });
     const plan = parseWorkoutPlan(text);

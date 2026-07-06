@@ -92,11 +92,7 @@ export function Generator() {
           {loading ? (
             <LoadingState />
           ) : plan ? (
-            <WorkoutOutput
-              plan={plan}
-              onChange={setPlan}
-              onReset={() => setPlan(null)}
-            />
+            <WorkoutOutput plan={plan} onReset={() => setPlan(null)} />
           ) : null}
         </div>
       )}
