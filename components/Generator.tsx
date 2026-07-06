@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs } from "./Tabs";
 import { GuidedForm } from "./GuidedForm";
 import { ChatMode } from "./ChatMode";
@@ -25,9 +25,6 @@ export function Generator() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Something went wrong.");
       setPlan(data.plan as WorkoutPlan);
-      requestAnimationFrame(() => {
-        document.getElementById("workout-output")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to generate workout.");
     } finally {
@@ -42,6 +39,18 @@ export function Generator() {
     generate({ mode: "chat", chatPrompt: prompt });
   }
 
+  const overlayOpen = loading || !!plan;
+
+  // Close the results overlay on Escape (not while generating).
+  useEffect(() => {
+    if (!plan) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPlan(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [plan]);
+
   return (
     <section
       id="generator"
@@ -52,14 +61,6 @@ export function Generator() {
           <h1 className="text-sm font-bold text-brand-orange text-center whitespace-nowrap">
             AI Workout Generator
           </h1>
-          {plan && (
-            <button
-              onClick={() => setPlan(null)}
-              className="absolute right-0 text-xs text-ink-muted hover:text-ink underline-offset-4 hover:underline"
-            >
-              New plan
-            </button>
-          )}
         </header>
 
         <Tabs value={mode} onChange={setMode} />
@@ -78,25 +79,29 @@ export function Generator() {
         )}
       </div>
 
-      <div id="workout-output">
-        {loading && <LoadingState />}
-        {!loading && plan && (
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <WorkoutOutput
-              plan={plan}
-              onChange={setPlan}
-              onReset={() => setPlan(null)}
-            />
+      {/* Results open as a new "page" on top of the tool, at the same 536px size. */}
+      {overlayOpen && (
+        <div className="fixed inset-0 z-40 flex justify-center overflow-y-auto bg-black/20 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="m-auto flex w-full max-w-[536px] min-h-[440px] max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-card">
+            {loading ? (
+              <LoadingState />
+            ) : plan ? (
+              <WorkoutOutput
+                plan={plan}
+                onChange={setPlan}
+                onReset={() => setPlan(null)}
+              />
+            ) : null}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }
 
 function LoadingState() {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm text-center">
+    <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
       <div className="inline-flex items-center gap-1.5">
         <span className="h-1.5 w-1.5 rounded-full bg-brand-teal animate-pulseDot" />
         <span className="h-1.5 w-1.5 rounded-full bg-brand-teal animate-pulseDot [animation-delay:200ms]" />

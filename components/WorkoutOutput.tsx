@@ -90,38 +90,50 @@ export function WorkoutOutput({ plan, onChange, onReset }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4 animate-fadeIn">
-      <div>
-        <p className="text-[10px] uppercase tracking-wider text-ink-dim font-semibold">
-          Generated plan
-        </p>
-        <h2 className="text-lg sm:text-xl font-bold text-ink mt-0.5">
-          {plan.clientName || "Client"} · {plan.goal}
-        </h2>
-        <p className="text-xs text-ink-muted mt-0.5">
-          {plan.duration} · {plan.trainingFormat}
-        </p>
-      </div>
+    <>
+      {/* Fixed header: stays put while the preview below scrolls. */}
+      <header className="shrink-0 border-b border-gray-200 p-4 animate-fadeIn">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-ink-dim font-semibold">
+              Your workout plan
+            </p>
+            <h2 className="text-sm font-bold text-ink mt-0.5 truncate">
+              {plan.clientName || "Client"} · {plan.goal}
+            </h2>
+            <p className="text-[11px] text-ink-muted mt-0.5 truncate">
+              {plan.duration} · {plan.trainingFormat}
+            </p>
+          </div>
+          <button
+            onClick={onReset}
+            aria-label="Close"
+            className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg text-ink-muted hover:bg-bg-card hover:text-ink transition"
+          >
+            <CloseIcon />
+          </button>
+        </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        <Button variant="secondary" size="sm" onClick={copyAll}>
-          <CopyIcon /> {copied ? "Copied" : "Copy"}
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            setServerError(null);
-            setGateOpen(true);
-          }}
-        >
-          <DownloadIcon /> Download PDF
-        </Button>
-        <Button variant="ghost" size="sm" onClick={onReset}>
-          Reset
-        </Button>
-      </div>
+        <div className="mt-3 flex gap-1.5">
+          <Button
+            variant="primary"
+            size="md"
+            className="flex-1"
+            onClick={() => {
+              setServerError(null);
+              setGateOpen(true);
+            }}
+          >
+            <DownloadIcon /> Download PDF
+          </Button>
+          <Button variant="secondary" size="md" onClick={copyAll}>
+            <CopyIcon /> {copied ? "Copied" : "Copy"}
+          </Button>
+        </div>
+      </header>
 
+      {/* Scrollable workout preview */}
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fadeIn">
       {plan.goalSummary && (
         <div className="rounded-lg border border-brand-teal/20 bg-brand-tint p-3">
           <p className="text-xs text-ink-muted leading-relaxed">{plan.goalSummary}</p>
@@ -281,6 +293,7 @@ export function WorkoutOutput({ plan, onChange, onReset }: Props) {
           />
         </InfoCard>
       </div>
+      </div>
 
       <DownloadGateModal
         open={gateOpen}
@@ -291,7 +304,7 @@ export function WorkoutOutput({ plan, onChange, onReset }: Props) {
         onDownloadAnyway={handleDownloadAnyway}
       />
       <SignupPopup open={signupOpen} onClose={() => setSignupOpen(false)} />
-    </div>
+    </>
   );
 }
 
@@ -462,6 +475,14 @@ function DownloadIcon() {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+function CloseIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
 }
