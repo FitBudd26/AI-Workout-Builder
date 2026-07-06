@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "./ui/Button";
 import { DownloadGateModal } from "./DownloadGateModal";
 import { SignupPopup } from "./SignupPopup";
-import { downloadWorkoutPdf, pdfFileName, workoutPdfBase64 } from "@/lib/pdf";
+import { downloadWorkoutPdf } from "@/lib/pdf";
 import type { WorkoutPlan } from "@/lib/types";
 
 interface Props {
@@ -18,28 +18,12 @@ export function WorkoutOutput({ plan, onReset }: Props) {
   const [gateOpen, setGateOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
 
-  // Lead is captured to HubSpot in the gate. Then we (1) hand over the PDF via
-  // an immediate local download and (2) email the same PDF via Resend. The
-  // email is best-effort — a delivery hiccup never blocks the download.
-  function handleProceed(email: string, profession: string) {
+  // Lead is captured to HubSpot in the gate; then the user gets the plan via
+  // an immediate local PDF download and we show the upsell.
+  function handleProceed() {
     downloadWorkoutPdf(plan);
     setGateOpen(false);
     setSignupOpen(true);
-
-    void fetch("/api/send-plan", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        profession,
-        clientName: plan.clientName,
-        goal: plan.goal,
-        pdfBase64: workoutPdfBase64(plan),
-        fileName: pdfFileName(plan),
-      }),
-    }).catch(() => {
-      /* email is best-effort; the user already has the download */
-    });
   }
 
   const preview = plan.mainWorkout.slice(0, 3);

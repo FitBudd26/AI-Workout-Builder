@@ -11,8 +11,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   // Called once we should hand over the plan (after capture, or "download anyway").
-  // Receives the captured email/profession so the plan can also be emailed.
-  onProceed: (email: string, profession: string) => void;
+  onProceed: () => void;
 }
 
 // Matches the HubSpot dropdown "are_you_a_fitness_professional" options.
@@ -63,7 +62,7 @@ export function DownloadGateModal({ open, onClose, onProceed }: Props) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || "Couldn't save your details.");
-      onProceed(email, profession);
+      onProceed();
     } catch (err) {
       setServerError(
         err instanceof Error ? err.message : "Couldn't save your details."
@@ -130,7 +129,7 @@ export function DownloadGateModal({ open, onClose, onProceed }: Props) {
             {serverError}
             <button
               type="button"
-              onClick={() => onProceed(email, profession)}
+              onClick={onProceed}
               className="block mt-1 underline underline-offset-2 font-medium"
             >
               Download the PDF anyway
