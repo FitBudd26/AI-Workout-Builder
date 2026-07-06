@@ -56,7 +56,13 @@ export function Generator() {
       id="generator"
       className="w-full max-w-[536px] mx-auto p-4 flex flex-col gap-2.5"
     >
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm min-h-[440px]">
+      {/* Tool (hidden — not unmounted — while results are open, so form state is kept) */}
+      <div
+        className={
+          "rounded-2xl border border-gray-200 bg-white p-4 shadow-sm min-h-[440px]" +
+          (overlayOpen ? " hidden" : "")
+        }
+      >
         <header className="relative flex items-center justify-center mb-3">
           <h1 className="text-sm font-bold text-brand-orange text-center whitespace-nowrap">
             AI Workout Generator
@@ -79,20 +85,19 @@ export function Generator() {
         )}
       </div>
 
-      {/* Results open as a new "page" on top of the tool, at the same 536px size. */}
+      {/* Results open as a new "page" that takes over the tool at the same 536px size.
+          Rendered in normal flow so iframe-resizer can auto-size the embed. */}
       {overlayOpen && (
-        <div className="fixed inset-0 z-40 flex justify-center overflow-y-auto bg-black/20 backdrop-blur-sm p-4 animate-fadeIn">
-          <div className="m-auto flex w-full max-w-[536px] min-h-[440px] max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-card">
-            {loading ? (
-              <LoadingState />
-            ) : plan ? (
-              <WorkoutOutput
-                plan={plan}
-                onChange={setPlan}
-                onReset={() => setPlan(null)}
-              />
-            ) : null}
-          </div>
+        <div className="flex min-h-[440px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-card animate-fadeIn">
+          {loading ? (
+            <LoadingState />
+          ) : plan ? (
+            <WorkoutOutput
+              plan={plan}
+              onChange={setPlan}
+              onReset={() => setPlan(null)}
+            />
+          ) : null}
         </div>
       )}
     </section>

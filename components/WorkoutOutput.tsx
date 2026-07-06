@@ -132,8 +132,8 @@ export function WorkoutOutput({ plan, onChange, onReset }: Props) {
         </div>
       </header>
 
-      {/* Scrollable workout preview */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fadeIn">
+      {/* Workout preview — flows naturally so the embed auto-sizes to it */}
+      <div className="p-4 flex flex-col gap-4 animate-fadeIn">
       {plan.goalSummary && (
         <div className="rounded-lg border border-brand-teal/20 bg-brand-tint p-3">
           <p className="text-xs text-ink-muted leading-relaxed">{plan.goalSummary}</p>
