@@ -123,7 +123,7 @@ export function WorkoutOutput({ plan, onChange, onReset }: Props) {
       </div>
 
       {plan.goalSummary && (
-        <div className="rounded-lg border border-bg-border bg-bg-card p-3">
+        <div className="rounded-lg border border-brand-teal/20 bg-brand-tint p-3">
           <p className="text-xs text-ink-muted leading-relaxed">{plan.goalSummary}</p>
         </div>
       )}
@@ -308,8 +308,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-bg-border bg-bg-card p-3">
-      <h4 className="text-[10px] uppercase tracking-wider text-ink-muted font-semibold mb-1">
+    <div className="rounded-lg border border-brand-teal/20 bg-brand-tint p-3">
+      <h4 className="text-[10px] uppercase tracking-wider text-brand-teal font-semibold mb-1">
         {title}
       </h4>
       {children}

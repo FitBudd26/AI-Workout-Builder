@@ -45,10 +45,10 @@ export function Generator() {
   return (
     <section
       id="generator"
-      className="w-full max-w-md mx-auto flex flex-col gap-2"
+      className="w-full max-w-[536px] mx-auto p-4 flex flex-col gap-2.5"
     >
       <header className="relative flex items-center justify-center">
-        <h1 className="text-base sm:text-lg font-semibold text-ink text-center">
+        <h1 className="text-sm font-bold text-brand-orange text-center whitespace-nowrap">
           AI Workout Generator
         </h1>
         {plan && (
@@ -61,7 +61,7 @@ export function Generator() {
         )}
       </header>
 
-      <div className="rounded-xl border border-bg-border bg-white p-3 sm:p-4 shadow-card">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm min-h-[440px]">
         <Tabs value={mode} onChange={setMode} />
         <div className="mt-4">
           {mode === "guided" ? (
@@ -72,7 +72,7 @@ export function Generator() {
         </div>
 
         {error && (
-          <div className="mt-3 rounded-lg border border-black/20 bg-accent-soft text-xs text-ink px-3 py-2.5">
+          <div className="mt-3 rounded-lg border border-brand-orange/30 bg-brand-tint text-xs text-ink px-3 py-2.5">
             {error}
           </div>
         )}
@@ -81,7 +81,7 @@ export function Generator() {
       <div id="workout-output">
         {loading && <LoadingState />}
         {!loading && plan && (
-          <div className="rounded-xl border border-bg-border bg-white p-3 sm:p-4 shadow-card">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
             <WorkoutOutput
               plan={plan}
               onChange={setPlan}
@@ -96,11 +96,11 @@ export function Generator() {
 
 function LoadingState() {
   return (
-    <div className="rounded-xl border border-bg-border bg-white p-6 shadow-card text-center">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm text-center">
       <div className="inline-flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulseDot" />
-        <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulseDot [animation-delay:200ms]" />
-        <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulseDot [animation-delay:400ms]" />
+        <span className="h-1.5 w-1.5 rounded-full bg-brand-teal animate-pulseDot" />
+        <span className="h-1.5 w-1.5 rounded-full bg-brand-teal animate-pulseDot [animation-delay:200ms]" />
+        <span className="h-1.5 w-1.5 rounded-full bg-brand-teal animate-pulseDot [animation-delay:400ms]" />
       </div>
       <p className="mt-3 text-sm font-medium text-ink">Designing your session…</p>
       <p className="mt-1 text-xs text-ink-muted">

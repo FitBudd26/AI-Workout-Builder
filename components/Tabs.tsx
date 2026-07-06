@@ -40,7 +40,7 @@ function TabButton({
       className={cn(
         "h-9 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2",
         active
-          ? "bg-black text-white shadow-card"
+          ? "bg-brand-teal text-white shadow-card"
           : "text-ink-muted hover:text-ink"
       )}
     >

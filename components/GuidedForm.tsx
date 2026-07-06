@@ -115,7 +115,7 @@ export function GuidedForm({ loading, onSubmit }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
       <Field
         label="Client Name"
         required
@@ -131,7 +131,7 @@ export function GuidedForm({ loading, onSubmit }: Props) {
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2.5">
         <Field label="Goal" required error={errors.goal}>
           <Select
             placeholder="Select goal"
@@ -236,7 +236,7 @@ export function GuidedForm({ loading, onSubmit }: Props) {
         >
           Use sample
         </button>
-        <Button type="submit" loading={loading} className="flex-1 max-w-[220px]">
+        <Button type="submit" size="lg" loading={loading} className="flex-1 max-w-[220px]">
           Generate Workout
         </Button>
       </div>

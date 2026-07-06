@@ -16,8 +16,8 @@ export function Chip({ label, active, onClick }: ChipProps) {
       className={cn(
         "px-2.5 h-7 rounded-full text-xs font-medium border transition",
         active
-          ? "bg-black text-white border-black"
-          : "bg-white text-ink-muted border-bg-border hover:border-black/60 hover:text-ink"
+          ? "bg-brand-teal text-white border-brand-teal"
+          : "bg-white text-ink-muted border-bg-border hover:border-brand-teal/60 hover:text-ink"
       )}
     >
       {label}

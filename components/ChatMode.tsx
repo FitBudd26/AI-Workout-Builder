@@ -30,7 +30,7 @@ export function ChatMode({ loading, onSubmit }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
       <div>
         <label className="text-xs font-semibold text-ink">Describe your client</label>
         <p className="text-[11px] text-ink-dim mt-0.5">
@@ -45,7 +45,7 @@ export function ChatMode({ loading, onSubmit }: Props) {
         onChange={(e) => setText(e.target.value)}
         invalid={!!error}
       />
-      {error && <p className="text-[11px] text-black/80 -mt-2">{error}</p>}
+      {error && <p className="text-[11px] text-brand-orange -mt-2">{error}</p>}
 
       <div>
         <p className="text-[10px] uppercase tracking-wide text-ink-dim mb-1.5">
@@ -60,7 +60,7 @@ export function ChatMode({ loading, onSubmit }: Props) {
                 setText(ex);
                 setError(null);
               }}
-              className="text-left text-xs text-ink-muted hover:text-ink bg-bg-card border border-bg-border hover:border-black/40 rounded-lg px-3 py-2 transition"
+              className="text-left text-xs text-ink-muted hover:text-ink bg-bg-card border border-bg-border hover:border-brand-teal/40 rounded-lg px-3 py-2 transition"
             >
               {ex}
             </button>
@@ -69,7 +69,7 @@ export function ChatMode({ loading, onSubmit }: Props) {
       </div>
 
       <div className="flex justify-end pt-1">
-        <Button type="submit" loading={loading} className="w-full sm:w-auto">
+        <Button type="submit" size="lg" loading={loading} className="w-full sm:w-auto">
           Generate Workout
         </Button>
       </div>

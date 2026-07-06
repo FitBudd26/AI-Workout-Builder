@@ -20,9 +20,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         value={value}
         className={cn(
           "h-10 w-full appearance-none rounded-lg bg-white border border-bg-border px-3 pr-9 text-sm text-ink",
-          "focus:outline-none focus:border-black focus:ring-1 focus:ring-black/20 transition",
+          "focus:outline-none focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/30 transition",
           (value === "" || value === undefined) && "text-ink-dim",
-          invalid && "border-black/70 focus:border-black",
+          invalid && "border-brand-orange focus:border-brand-orange",
           className
         )}
         {...rest}

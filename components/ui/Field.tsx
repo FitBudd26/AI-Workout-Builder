@@ -29,11 +29,11 @@ export function Field({
         className="text-xs font-semibold text-ink flex items-center gap-1"
       >
         {label}
-        {required && <span className="text-black">*</span>}
+        {required && <span className="text-brand-orange">*</span>}
       </label>
       {children}
       {error ? (
-        <p className="text-[11px] text-black/80">{error}</p>
+        <p className="text-[11px] text-brand-orange">{error}</p>
       ) : hint ? (
         <p className="text-[11px] text-ink-dim">{hint}</p>
       ) : null}

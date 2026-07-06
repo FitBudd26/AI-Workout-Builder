@@ -20,6 +20,14 @@ const config: Config = {
           hover: "#1F2937",
           soft: "#F3F4F6",
         },
+        // Brand tokens — keep consistent across all 10 tools
+        brand: {
+          teal: "#009379",       // focus, checkboxes, secondary
+          tealDark: "#007a64",   // teal hover
+          orange: "#FE895C",     // primary button, header
+          orangeDark: "#f5703d", // accent hover
+          tint: "#f0faf8",       // light teal tint for result cards
+        },
         ink: {
           DEFAULT: "#0B0B0F",
           muted: "#4B5563",
@@ -45,7 +53,7 @@ const config: Config = {
       },
       borderRadius: {
         xl: "0.85rem",
-        "2xl": "1.1rem",
+        "2xl": "1rem", // 16px card radius (spec)
       },
       keyframes: {
         pulseDot: {

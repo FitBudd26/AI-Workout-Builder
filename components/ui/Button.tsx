@@ -13,22 +13,22 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30 disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap";
+  "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal/30 disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-black text-white hover:bg-accent-hover shadow-glow active:translate-y-px",
+    "bg-brand-orange text-white hover:bg-brand-orangeDark shadow-glow active:translate-y-px",
   secondary:
-    "bg-white text-ink border border-bg-border hover:border-black/50",
+    "bg-white text-brand-teal border border-brand-teal/40 hover:border-brand-teal",
   ghost: "text-ink-muted hover:text-ink hover:bg-bg-card",
   outline:
-    "border border-bg-border text-ink hover:border-black",
+    "border border-bg-border text-ink hover:border-brand-teal",
 };
 
 const sizes: Record<Size, string> = {
   sm: "h-8 px-3 text-xs",
   md: "h-10 px-4 text-sm",
-  lg: "h-11 px-5 text-sm",
+  lg: "h-[46px] px-5 text-sm", // primary button height (spec)
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
