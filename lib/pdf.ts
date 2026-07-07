@@ -88,15 +88,7 @@ export function buildWorkoutDoc(plan: WorkoutPlan): jsPDF {
   // ---- Warm-up ----
   cursorY = sectionTitle(doc, "Warm-up", marginX, cursorY, ensureSpace);
   plan.warmup.forEach((w) => {
-    ensureSpace(26);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(...INK);
-    doc.text(`• ${w.movement}`, marginX, cursorY);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(...MUTED);
-    doc.text(`${w.duration}${w.notes ? " — " + w.notes : ""}`, marginX + 14, cursorY + 13);
-    cursorY += 27;
+    cursorY = bulletItem(doc, w.movement, w.duration, w.notes, marginX, cursorY, contentWidth, ensureSpace);
   });
   cursorY += 4;
 
@@ -153,15 +145,7 @@ export function buildWorkoutDoc(plan: WorkoutPlan): jsPDF {
   // ---- Cool-down ----
   cursorY = sectionTitle(doc, "Cool-down", marginX, cursorY, ensureSpace);
   plan.cooldown.forEach((c) => {
-    ensureSpace(26);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(...INK);
-    doc.text(`• ${c.movement}`, marginX, cursorY);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(...MUTED);
-    doc.text(`${c.duration}${c.notes ? " — " + c.notes : ""}`, marginX + 14, cursorY + 13);
-    cursorY += 27;
+    cursorY = bulletItem(doc, c.movement, c.duration, c.notes, marginX, cursorY, contentWidth, ensureSpace);
   });
   cursorY += 6;
 
@@ -222,6 +206,38 @@ export function pdfFileName(plan: WorkoutPlan): string {
     .replace(/[^a-z0-9_-]+/gi, "-")
     .toLowerCase();
   return `${safeName}-workout.pdf`;
+}
+
+// A warm-up / cool-down bullet whose detail line WRAPS instead of running off
+// the right page edge (the cause of the "…across the " mid-sentence clipping).
+function bulletItem(
+  doc: jsPDF,
+  movement: string,
+  duration: string,
+  notes: string | undefined,
+  marginX: number,
+  y: number,
+  contentWidth: number,
+  ensureSpace: (n: number) => void
+): number {
+  const detail = `${duration}${notes ? " — " + notes : ""}`;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  const lines = doc.splitTextToSize(detail, contentWidth - 14);
+  const h = 15 + lines.length * 12;
+  ensureSpace(h);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...INK);
+  doc.text(`• ${movement}`, marginX, y);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(...MUTED);
+  doc.text(lines, marginX + 14, y + 13);
+
+  return y + h;
 }
 
 // Append a unit label only to bare numbers ("3" → "3 sets"); leave descriptive
