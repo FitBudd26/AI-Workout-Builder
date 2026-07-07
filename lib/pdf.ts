@@ -39,7 +39,10 @@ export function buildWorkoutDoc(plan: WorkoutPlan): jsPDF {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(24);
   doc.setTextColor(...BLACK);
-  const title = `${plan.clientName || "Client"}'s ${plan.goal} Workout`;
+  // No placeholder name in a client-facing doc — fall back to a goal title.
+  const title = plan.clientName
+    ? `${plan.clientName}'s ${plan.goal} Workout`
+    : `${plan.goal} Workout Plan`;
   doc.text(title, marginX, cursorY);
   cursorY += 20;
 
@@ -49,16 +52,33 @@ export function buildWorkoutDoc(plan: WorkoutPlan): jsPDF {
   doc.text(`Professional Workout Plan  •  ${plan.duration}`, marginX, cursorY);
   cursorY += 22;
 
-  // ---- Summary card ----
+  // ---- Summary card (short values only, so nothing clips) ----
   const cardH = 64;
   doc.setDrawColor(...LINE);
   doc.setFillColor(...CARD);
   doc.roundedRect(marginX, cursorY, contentWidth, cardH, 8, 8, "FD");
   const col = contentWidth / 3;
-  summaryCell(doc, "CLIENT", plan.clientName || "Client", marginX + 16, cursorY + 24);
-  summaryCell(doc, "GOAL", plan.goal, marginX + col + 8, cursorY + 24);
-  summaryCell(doc, "FORMAT", plan.trainingFormat, marginX + col * 2, cursorY + 24);
-  cursorY += cardH + 22;
+  summaryCell(doc, "GOAL", plan.goal, marginX + 16, cursorY + 24);
+  summaryCell(doc, "DURATION", plan.duration, marginX + col + 8, cursorY + 24);
+  summaryCell(
+    doc,
+    "EXERCISES",
+    String(plan.mainWorkout.length),
+    marginX + col * 2,
+    cursorY + 24
+  );
+  cursorY += cardH + 20;
+
+  // ---- Format (full, wrapped — no longer crammed into a tiny cell) ----
+  if (plan.trainingFormat) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...MUTED);
+    doc.text("FORMAT", marginX, cursorY);
+    cursorY += 13;
+    cursorY = paragraph(doc, plan.trainingFormat, marginX, cursorY, contentWidth, INK);
+    cursorY += 12;
+  }
 
   if (plan.goalSummary) {
     cursorY = paragraph(doc, plan.goalSummary, marginX, cursorY, contentWidth, MUTED);
@@ -101,13 +121,15 @@ export function buildWorkoutDoc(plan: WorkoutPlan): jsPDF {
     doc.setTextColor(...INK);
     doc.text(`${i + 1}. ${ex.exercise}`, marginX + 14, cursorY + 20);
 
-    // meta right-aligned
-    const meta = [`${ex.sets} sets`, `${ex.reps} reps`, `Rest ${ex.rest}`];
+    // meta right-aligned. Only append "sets"/"reps" when the value is a bare
+    // number — so time/round formats ("3 rounds", "40s work") don't collide
+    // into "3 rounds sets • 40s work reps".
+    const meta = [fmtCount(ex.sets, "sets"), fmtCount(ex.reps, "reps"), `Rest ${ex.rest}`];
     if (ex.tempo) meta.push(`Tempo ${ex.tempo}`);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     doc.setTextColor(...ORANGE);
-    doc.text(meta.join("  •  "), marginX + contentWidth - 14, cursorY + 20, {
+    doc.text(meta.filter(Boolean).join("  •  "), marginX + contentWidth - 14, cursorY + 20, {
       align: "right",
     });
 
@@ -200,6 +222,14 @@ export function pdfFileName(plan: WorkoutPlan): string {
     .replace(/[^a-z0-9_-]+/gi, "-")
     .toLowerCase();
   return `${safeName}-workout.pdf`;
+}
+
+// Append a unit label only to bare numbers ("3" → "3 sets"); leave descriptive
+// values untouched ("3 rounds" → "3 rounds", "40s work" → "40s work").
+function fmtCount(value: string, unit: string): string {
+  const v = (value ?? "").trim();
+  if (!v) return "";
+  return /^\d+$/.test(v) ? `${v} ${unit}` : v;
 }
 
 // ---------- drawing helpers ----------

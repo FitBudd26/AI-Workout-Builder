@@ -39,9 +39,9 @@ export function WorkoutOutput({ plan, onReset }: Props) {
               Workout preview
             </p>
             <h2 className="text-sm font-bold text-ink mt-0.5 truncate">
-              {plan.clientName || "Client"} · {plan.goal}
+              {plan.clientName ? `${plan.clientName} · ${plan.goal}` : plan.goal}
             </h2>
-            <p className="text-[11px] text-ink-muted mt-0.5 truncate">
+            <p className="text-[11px] text-ink-muted mt-0.5 line-clamp-2">
               {plan.duration} · {plan.trainingFormat}
             </p>
           </div>
@@ -79,7 +79,7 @@ export function WorkoutOutput({ plan, onReset }: Props) {
                 {i + 1}. {ex.exercise}
               </span>
               <span className="text-[11px] text-ink-muted shrink-0 whitespace-nowrap">
-                {ex.sets} × {ex.reps}
+                {formatSetsReps(ex.sets, ex.reps)}
               </span>
             </li>
           ))}
@@ -119,6 +119,15 @@ export function WorkoutOutput({ plan, onReset }: Props) {
       <SignupPopup open={signupOpen} onClose={() => setSignupOpen(false)} />
     </>
   );
+}
+
+// "3" + "10" → "3 × 10"; "3 rounds" + "40s work" → "3 rounds · 40s work".
+// Avoids the "3 rounds × 40s work" collision on time/round-based formats.
+function formatSetsReps(sets: string, reps: string): string {
+  const s = (sets ?? "").trim();
+  const r = (reps ?? "").trim();
+  if (/^\d+$/.test(s) && /^\d+$/.test(r)) return `${s} × ${r}`;
+  return [s, r].filter(Boolean).join(" · ");
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
