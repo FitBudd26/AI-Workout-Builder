@@ -60,8 +60,10 @@ async function callGemini(req: AiCompletionRequest): Promise<AiCompletionRespons
 
   // Primary + fallback model. Free tier 2.5-flash frequently returns 503
   // ("high demand"); we try the primary first, then automatically fall back.
-  const primary = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-  const fallback = primary === "gemini-2.5-flash" ? "gemini-2.0-flash" : "gemini-2.5-flash";
+  // The fallback is the "latest flash" alias so it keeps working after Google
+  // retires specific versions (as happened with gemini-2.0-flash → 404).
+  const primary = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const fallback = primary === "gemini-flash-latest" ? "gemini-2.5-flash" : "gemini-flash-latest";
 
   const body = {
     systemInstruction: { parts: [{ text: req.systemPrompt }] },
@@ -79,11 +81,26 @@ async function callGemini(req: AiCompletionRequest): Promise<AiCompletionRespons
     ],
   };
 
+  // Gemini 2.5 Flash "thinks" before answering by default, which adds 30s+ to
+  // a full plan. A thinking budget of 0 disables it — the prompt is detailed
+  // enough that structured JSON output doesn't need it. Only 2.5 Flash models
+  // accept budget 0, so leave other families (e.g. the fallback alias) alone.
+  const bodyFor = (model: string) =>
+    /^gemini-2\.5-flash/.test(model)
+      ? {
+          ...body,
+          generationConfig: {
+            ...body.generationConfig,
+            thinkingConfig: { thinkingBudget: 0 },
+          },
+        }
+      : body;
+
   try {
-    return await callGeminiModel(primary, apiKey, body);
+    return await callGeminiModel(primary, apiKey, bodyFor(primary));
   } catch (err) {
     if (isRetryableGeminiError(err)) {
-      return await callGeminiModel(fallback, apiKey, body);
+      return await callGeminiModel(fallback, apiKey, bodyFor(fallback));
     }
     throw err;
   }
@@ -157,7 +174,12 @@ class GeminiHttpError extends Error {
 }
 
 function isRetryableGeminiError(err: unknown): boolean {
-  return err instanceof GeminiHttpError && (err.status === 429 || err.status === 503);
+  // 404 means the model id was retired/renamed by Google — worth trying the
+  // fallback alias rather than failing the request outright.
+  return (
+    err instanceof GeminiHttpError &&
+    (err.status === 429 || err.status === 503 || err.status === 404)
+  );
 }
 
 function sleep(ms: number) {
